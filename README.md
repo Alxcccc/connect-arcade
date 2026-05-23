@@ -5,7 +5,6 @@ A two-player Connect 4 game built with Python and [Arcade](https://api.arcade.ac
 ## Features
 
 - Turn-based gameplay with red and yellow tokens
-- Score tracking across rounds
 - Turn indicator and game-over overlays
 - Classic Connect 4 win detection (horizontal, vertical, diagonal)
 
