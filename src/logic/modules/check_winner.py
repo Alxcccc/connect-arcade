@@ -44,7 +44,7 @@ class CheckWinner():
             for column in range(self.board_cols-1):
                 if column+3 <= self.board_cols-1:
                     if self.board[row][column].strip():
-                        if self.board[row][column] == "R" and self.board[row][column+1] == "R" and self.board[row][column+2] == "R" and self.board[row][column+3] == "R":
+                        if self.board[row][column] == "R" and self.board[row][column    +1] == "R" and self.board[row][column+2] == "R" and self.board[row][column+3] == "R":
                             return "R"
                         elif self.board[row][column] == "B" and self.board[row][column+1] == "B" and self.board[row][column+2] == "B" and self.board[row][column+3] == "B":
                             return "B"
