@@ -5,7 +5,6 @@ import arcade.gui
 from arcade.gui.widgets.buttons import UIFlatButtonStyle
 
 from src.views.game_view import GameView
-from src.logic.interfaces.scoring import ScoreTracker
 from src.logic.interfaces.board import Board
 from src.config import SCREEN_WIDTH, SCREEN_HEIGHT
 
@@ -19,9 +18,8 @@ RED_PRESS = (140, 20, 10)
 
 
 class MainView(arcade.View):
-    def __init__(self, score_tracker: ScoreTracker, board: Board):
+    def __init__(self, board: Board):
         super().__init__()
-        self.score_tracker: ScoreTracker = score_tracker
         self.manager: arcade.gui.UIManager = arcade.gui.UIManager()
 
         self.score_font_size: int = 18
@@ -85,7 +83,7 @@ class MainView(arcade.View):
             child=self.grid
         )
 
-        self.game_view: GameView = GameView(board, score_tracker)
+        self.game_view: GameView = GameView(board)
 
         self._setup_events()
 

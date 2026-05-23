@@ -4,7 +4,6 @@ import arcade
 import arcade.gui
 from arcade.types import Color
 
-from src.logic.interfaces.scoring import ScoreTracker
 from src.logic.interfaces.board import Board
 
 
@@ -13,11 +12,9 @@ PANEL_HEIGHT = 200
 
 
 class GameOverComponent(arcade.gui.UIAnchorLayout):
-    def __init__(self, board: Board, score_tracker: ScoreTracker, winner: str,
-                 window: arcade.Window):
+    def __init__(self, board: Board, winner: str, window: arcade.Window):
         super().__init__()
         self.board = board
-        self.score_tracker = score_tracker
         self.winner = winner
         self.window = window
 
@@ -63,5 +60,5 @@ class GameOverComponent(arcade.gui.UIAnchorLayout):
     def _go_to_menu(self) -> None:
         from src.views.main_view import MainView
         self.board.clear_board()
-        menu_view = MainView(self.score_tracker, self.board)
+        menu_view = MainView(self.board)
         self.window.show_view(menu_view)

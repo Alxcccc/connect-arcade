@@ -1,15 +1,13 @@
 from typing import Optional, List, Tuple
 
 from src.logic.interfaces.board import Board
-from src.logic.interfaces.scoring import ScoreTracker
 
 
 class WinChecker:
-    def __init__(self, board: Board, score_tracker: ScoreTracker):
+    def __init__(self, board: Board):
         self._grid: List[List[str]] = board.get_board()
         self._row_count: int = board._ROW_COUNT
         self._col_count: int = board._COLUMN_COUNT
-        self._score_tracker: ScoreTracker = score_tracker
 
     def is_board_full(self) -> bool:
         count = 0
@@ -43,7 +41,6 @@ class WinChecker:
                 c -= dc
 
             if consecutive_count >= 4:
-                self._score_tracker.increment_points(player_color)
                 return player_color
 
         return None

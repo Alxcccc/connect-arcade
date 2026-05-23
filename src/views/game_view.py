@@ -3,16 +3,14 @@ from typing import Optional, Tuple
 import arcade
 
 from src.logic.interfaces.board import Board
-from src.logic.interfaces.scoring import ScoreTracker
 from src.logic.modules.win_checker import WinChecker
 from src.views.switch_turn_view import SwitchTurnComponent
 from src.components.game_over_component import GameOverComponent
 
 
 class GameView(arcade.View):
-    def __init__(self, board: Board, score_tracker: ScoreTracker):
+    def __init__(self, board: Board):
         super().__init__()
-        self.score_tracker: ScoreTracker = score_tracker
         self.board: Board = board
         self.manager: arcade.gui.UIManager = arcade.gui.UIManager()
         self.winner: Optional[str] = None
@@ -30,7 +28,7 @@ class GameView(arcade.View):
         if self.winner is not None:
             return
 
-        win_checker: WinChecker = WinChecker(self.board, self.score_tracker)
+        win_checker: WinChecker = WinChecker(self.board)
 
         if win_checker.is_board_full():
             self.board.turn = "R"
@@ -47,5 +45,5 @@ class GameView(arcade.View):
             else:
                 self.board.turn = "R"
                 self.manager.add(
-                    GameOverComponent(self.board, self.score_tracker, self.winner, self.window)
+                    GameOverComponent(self.board, self.winner, self.window)
                 )
