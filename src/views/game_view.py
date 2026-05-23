@@ -2,23 +2,26 @@ from typing import Optional, Tuple
 
 import arcade
 
-from src.logic.interfaces.board import Board
+from src.logic.interfaces.board import BoardModel
+from src.logic.modules.board_renderer import BoardRenderer
 from src.logic.modules.win_checker import WinChecker
-from src.views.switch_turn_view import SwitchTurnComponent
+from src.logic.enums import Token
+from src.components.switch_turn_component import SwitchTurnComponent
 from src.components.game_over_component import GameOverComponent
 
 
 class GameView(arcade.View):
-    def __init__(self, board: Board):
+    def __init__(self, board: BoardModel):
         super().__init__()
-        self.board: Board = board
+        self.board: BoardModel = board
+        self.renderer: BoardRenderer = BoardRenderer(board)
         self.manager: arcade.gui.UIManager = arcade.gui.UIManager()
         self.winner: Optional[str] = None
         self.background_color: tuple = (0, 81, 186)
 
     def on_draw(self) -> None:
         self.clear()
-        self.board.draw_board()
+        self.renderer.draw_board()
         self.manager.draw()
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
@@ -31,10 +34,11 @@ class GameView(arcade.View):
         win_checker: WinChecker = WinChecker(self.board)
 
         if win_checker.is_board_full():
-            self.board.turn = "R"
+            self.board.turn = Token.RED
             self.board.clear_board()
 
-        placement: Optional[Tuple[int, int]] = self.board.put_token(x, y)
+        col: int = BoardRenderer.pixel_to_column(x)
+        placement: Optional[Tuple[int, int]] = self.board.put_token(col)
 
         if placement is not None:
             row, col = placement
@@ -43,7 +47,7 @@ class GameView(arcade.View):
             if self.winner is None:
                 self.manager.add(SwitchTurnComponent(self.board, self), layer=1)
             else:
-                self.board.turn = "R"
+                self.board.turn = Token.RED
                 self.manager.add(
                     GameOverComponent(self.board, self.winner, self.window)
                 )

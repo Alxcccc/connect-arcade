@@ -4,7 +4,7 @@ import arcade
 import arcade.gui
 from arcade.types import Color
 
-from src.logic.interfaces.board import Board
+from src.logic.interfaces.board import BoardModel
 
 
 PANEL_WIDTH = 460
@@ -12,7 +12,7 @@ PANEL_HEIGHT = 200
 
 
 class GameOverComponent(arcade.gui.UIAnchorLayout):
-    def __init__(self, board: Board, winner: str, window: arcade.Window):
+    def __init__(self, board: BoardModel, winner: str, window: arcade.Window):
         super().__init__()
         self.board = board
         self.winner = winner

@@ -1,8 +1,7 @@
-from typing import Optional, Tuple, List
-
 import arcade
 
-from src.logic.interfaces.board import Board
+from src.logic.interfaces.board import BoardModel
+from src.logic.enums import Token
 from src.config import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
@@ -31,19 +30,13 @@ INNER_COLOR = (240, 243, 248)
 EMPTY_SLOT_COLOR = (160, 195, 230)
 TOKEN_RADIUS = CELL_SIZE // 2 - 5
 
+RED_COLOR = (218, 41, 28)
+YELLOW_COLOR = (255, 215, 0)
 
-class Connect4Board(Board):
-    def __init__(self):
-        self._ROW_COUNT: int = GRID_ROWS
-        self._COLUMN_COUNT: int = GRID_COLS
-        self._grid: List[List[str]] = self.create_board()
-        self.turn: str = "R"
 
-    def create_board(self) -> List[List[str]]:
-        return [[" " for _ in range(self._COLUMN_COUNT)] for _ in range(self._ROW_COUNT)]
-
-    def get_board(self) -> List[List[str]]:
-        return self._grid
+class BoardRenderer:
+    def __init__(self, board: BoardModel):
+        self._board = board
 
     def draw_board(self) -> None:
         arcade.draw_rect_filled(
@@ -66,8 +59,9 @@ class Connect4Board(Board):
             INNER_COLOR,
         )
 
-        for row in range(self._ROW_COUNT):
-            for column in range(self._COLUMN_COUNT):
+        grid = self._board.get_board()
+        for row in range(self._board.row_count):
+            for column in range(self._board.col_count):
                 cx = (
                     INNER_X
                     + column * (CELL_SIZE + CELL_SPACING)
@@ -79,28 +73,15 @@ class Connect4Board(Board):
                     + CELL_SIZE / 2
                 )
 
-                if self._grid[row][column] == "R":
-                    color = (218, 41, 28)
-                elif self._grid[row][column] == "B":
-                    color = (255, 215, 0)
+                if grid[row][column] == Token.RED:
+                    color = RED_COLOR
+                elif grid[row][column] == Token.YELLOW:
+                    color = YELLOW_COLOR
                 else:
                     color = EMPTY_SLOT_COLOR
 
                 arcade.draw_circle_filled(cx, cy, TOKEN_RADIUS, color)
 
-    def clear_board(self) -> None:
-        for i in range(self._ROW_COUNT):
-            for j in range(self._COLUMN_COUNT):
-                if self._grid[i][j] != " ":
-                    self._grid[i][j] = " "
-
-    def put_token(self, x: int, y: int) -> Optional[Tuple[int, int]]:
-        col = int((x - INNER_X) // (CELL_SIZE + CELL_SPACING))
-
-        if 0 <= col < self._COLUMN_COUNT:
-            for current_row in range(self._ROW_COUNT):
-                if self._grid[current_row][col] == " ":
-                    self._grid[current_row][col] = self.turn
-                    self.turn = "B" if self.turn == "R" else "R"
-                    return current_row, col
-        return None
+    @staticmethod
+    def pixel_to_column(x: int) -> int:
+        return int((x - INNER_X) // (CELL_SIZE + CELL_SPACING))

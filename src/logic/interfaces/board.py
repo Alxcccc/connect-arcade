@@ -1,24 +1,42 @@
 from abc import abstractmethod, ABC
 from typing import Optional, Tuple, List
 
+from src.logic.enums import Token
 
-class Board(ABC):
+
+class BoardModel(ABC):
+    @property
+    @abstractmethod
+    def row_count(self) -> int:
+        ...
+
+    @property
+    @abstractmethod
+    def col_count(self) -> int:
+        ...
+
+    @property
+    @abstractmethod
+    def turn(self) -> Token:
+        ...
+
+    @turn.setter
+    @abstractmethod
+    def turn(self, value: Token) -> None:
+        ...
+
     @abstractmethod
     def create_board(self) -> None:
-        pass
+        ...
 
     @abstractmethod
     def get_board(self) -> List[List[str]]:
-        pass
-
-    @abstractmethod
-    def draw_board(self) -> None:
-        pass
+        ...
 
     @abstractmethod
     def clear_board(self) -> None:
-        pass
+        ...
 
     @abstractmethod
-    def put_token(self, x: int, y: int) -> Optional[Tuple[int, int]]:
-        pass
+    def put_token(self, col: int) -> Optional[Tuple[int, int]]:
+        ...

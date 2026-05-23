@@ -4,7 +4,7 @@ import arcade
 import arcade.gui
 from arcade.types import Color
 
-from src.logic.interfaces.board import Board
+from src.logic.interfaces.board import BoardModel
 
 
 PANEL_WIDTH = 340
@@ -12,7 +12,7 @@ PANEL_HEIGHT = 140
 
 
 class SwitchTurnComponent(arcade.gui.UIAnchorLayout):
-    def __init__(self, board: Board, game_view: arcade.View):
+    def __init__(self, board: BoardModel, game_view: arcade.View):
         super().__init__()
         self.board = board
         self.game_view = game_view

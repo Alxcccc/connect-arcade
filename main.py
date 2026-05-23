@@ -1,12 +1,13 @@
 import arcade
 
 from src.views.main_view import MainView
-from src.logic.modules.board import Connect4Board
-from src.config import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
+from src.logic.modules.board_model import Connect4BoardModel
+from src.config import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, load_resources
 
 
 def main() -> None:
-    board: Connect4Board = Connect4Board()
+    load_resources()
+    board: Connect4BoardModel = Connect4BoardModel()
     window: arcade.Window = arcade.Window(
         SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=False
     )

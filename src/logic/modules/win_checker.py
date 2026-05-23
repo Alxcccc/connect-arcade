@@ -1,13 +1,13 @@
 from typing import Optional, List, Tuple
 
-from src.logic.interfaces.board import Board
+from src.logic.interfaces.board import BoardModel
 
 
 class WinChecker:
-    def __init__(self, board: Board):
+    def __init__(self, board: BoardModel):
         self._grid: List[List[str]] = board.get_board()
-        self._row_count: int = board._ROW_COUNT
-        self._col_count: int = board._COLUMN_COUNT
+        self._row_count: int = board.row_count
+        self._col_count: int = board.col_count
 
     def is_board_full(self) -> bool:
         count = 0
