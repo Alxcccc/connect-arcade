@@ -4,18 +4,22 @@ import arcade
 import arcade.gui
 from arcade.types import Color
 
+from src.logic.interfaces.scoring import ScoreTracker
 from src.logic.interfaces.board import Board
 
 
-PANEL_WIDTH = 340
-PANEL_HEIGHT = 140
+PANEL_WIDTH = 460
+PANEL_HEIGHT = 200
 
 
-class SwitchTurnComponent(arcade.gui.UIAnchorLayout):
-    def __init__(self, board: Board, game_view: arcade.View):
+class GameOverComponent(arcade.gui.UIAnchorLayout):
+    def __init__(self, board: Board, score_tracker: ScoreTracker, winner: str,
+                 window: arcade.Window):
         super().__init__()
         self.board = board
-        self.game_view = game_view
+        self.score_tracker = score_tracker
+        self.winner = winner
+        self.window = window
 
         frame = self.add(arcade.gui.UIAnchorLayout(
             width=PANEL_WIDTH, height=PANEL_HEIGHT, size_hint=None
@@ -23,16 +27,16 @@ class SwitchTurnComponent(arcade.gui.UIAnchorLayout):
         frame.with_padding(all=20)
         frame.with_background(color=Color(0, 30, 70))
 
-        player_name = "Red" if self.board.turn == "R" else "Yellow"
-        player_color = (218, 41, 28) if self.board.turn == "R" else (255, 215, 0)
+        winner_name = "Red" if self.winner == "R" else "Yellow"
+        winner_color = (218, 41, 28) if self.winner == "R" else (255, 215, 0)
 
         label = arcade.gui.UITextArea(
-            text=f"{player_name}'s Turn",
+            text=f"{winner_name} is the winner!",
             font_name="Kenney Blocks",
-            font_size=24,
+            font_size=18,
             width=PANEL_WIDTH - 60,
-            height=40,
-            text_color=player_color,
+            height=50,
+            text_color=winner_color,
         )
 
         hint = arcade.gui.UITextArea(
@@ -52,6 +56,12 @@ class SwitchTurnComponent(arcade.gui.UIAnchorLayout):
 
     def on_event(self, event: arcade.gui.UIEvent) -> Optional[bool]:
         if isinstance(event, arcade.gui.UIMousePressEvent):
-            self.parent.remove(self)
+            self._go_to_menu()
             return True
         return super().on_event(event)
+
+    def _go_to_menu(self) -> None:
+        from src.views.main_view import MainView
+        self.board.clear_board()
+        menu_view = MainView(self.score_tracker, self.board)
+        self.window.show_view(menu_view)

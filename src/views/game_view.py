@@ -5,8 +5,8 @@ import arcade
 from src.logic.interfaces.board import Board
 from src.logic.interfaces.scoring import ScoreTracker
 from src.logic.modules.win_checker import WinChecker
-from src.views.switch_turn_view import SwitchTurnView
-from src.views.game_over_view import GameOverView
+from src.views.switch_turn_view import SwitchTurnComponent
+from src.components.game_over_component import GameOverComponent
 
 
 class GameView(arcade.View):
@@ -16,42 +16,36 @@ class GameView(arcade.View):
         self.board: Board = board
         self.manager: arcade.gui.UIManager = arcade.gui.UIManager()
         self.winner: Optional[str] = None
-        self.background_color: tuple = arcade.color.BLACK
+        self.background_color: tuple = (0, 81, 186)
 
     def on_draw(self) -> None:
         self.clear()
         self.board.draw_board()
         self.manager.draw()
 
-    def on_key_press(self, key: int, modifiers: int) -> None:
-        if key == arcade.key.ESCAPE:
-            from src.views.main_view import MainView
-            menu_view = MainView(self.score_tracker, self.board)
-            self.window.show_view(menu_view)
-
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
-        if self.winner is None:
-            win_checker: WinChecker = WinChecker(self.board, self.score_tracker)
+        if self.manager.on_mouse_press(x, y, button, modifiers):
+            return
 
-            if win_checker.is_board_full():
-                self.board.turn = "R"
-                self.board.clear_board()
+        if self.winner is not None:
+            return
 
-            placement: Optional[Tuple[int, int]] = self.board.put_token(x, y)
+        win_checker: WinChecker = WinChecker(self.board, self.score_tracker)
 
-            if placement is not None:
-                row, col = placement
-                self.winner = win_checker.check_win(row, col)
-
-                if self.winner is None:
-                    switch_turn_view = SwitchTurnView(self.board, self)
-                    self.window.show_view(switch_turn_view)
-                else:
-                    self.board.turn = "R"
-        else:
+        if win_checker.is_board_full():
+            self.board.turn = "R"
             self.board.clear_board()
-            game_over_view: GameOverView = GameOverView(
-                self.board, self.score_tracker, self.winner
-            )
-            self.winner = None
-            self.window.show_view(game_over_view)
+
+        placement: Optional[Tuple[int, int]] = self.board.put_token(x, y)
+
+        if placement is not None:
+            row, col = placement
+            self.winner = win_checker.check_win(row, col)
+
+            if self.winner is None:
+                self.manager.add(SwitchTurnComponent(self.board, self), layer=1)
+            else:
+                self.board.turn = "R"
+                self.manager.add(
+                    GameOverComponent(self.board, self.score_tracker, self.winner, self.window)
+                )

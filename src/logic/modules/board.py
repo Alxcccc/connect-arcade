@@ -6,16 +6,36 @@ from src.logic.interfaces.board import Board
 from src.config import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
+CELL_SIZE = 72
+CELL_SPACING = 10
+FRAME_PADDING = 18
+TOP_BAR_HEIGHT = 15
+
+GRID_COLS = 7
+GRID_ROWS = 6
+GRID_WIDTH = GRID_COLS * CELL_SIZE + (GRID_COLS - 1) * CELL_SPACING
+GRID_HEIGHT = GRID_ROWS * CELL_SIZE + (GRID_ROWS - 1) * CELL_SPACING
+INNER_WIDTH = GRID_WIDTH
+INNER_HEIGHT = GRID_HEIGHT
+FRAME_WIDTH = INNER_WIDTH + 2 * FRAME_PADDING
+FRAME_HEIGHT = INNER_HEIGHT + 2 * FRAME_PADDING + TOP_BAR_HEIGHT
+
+FRAME_X = (SCREEN_WIDTH - FRAME_WIDTH) // 2
+FRAME_Y = (SCREEN_HEIGHT - FRAME_HEIGHT) // 2
+
+INNER_X = FRAME_X + FRAME_PADDING
+INNER_Y = FRAME_Y + FRAME_PADDING + TOP_BAR_HEIGHT
+
+FRAME_COLOR = (0, 50, 110)
+INNER_COLOR = (240, 243, 248)
+EMPTY_SLOT_COLOR = (160, 195, 230)
+TOKEN_RADIUS = CELL_SIZE // 2 - 5
+
+
 class Connect4Board(Board):
-    def __init__(self, row_count: int = 6, column_count: int = 7,
-                 cell_width: int = 30, cell_height: int = 30, margin: int = 5):
-        self._ROW_COUNT: int = row_count
-        self._COLUMN_COUNT: int = column_count
-        self._WIDTH: int = cell_width
-        self._HEIGHT: int = cell_height
-        self._MARGIN: int = margin
-        self._WINDOW_WIDTH: int = (self._WIDTH + self._MARGIN) * self._COLUMN_COUNT + self._MARGIN
-        self._WINDOW_HEIGHT: int = (self._HEIGHT + self._MARGIN) * self._ROW_COUNT + self._MARGIN
+    def __init__(self):
+        self._ROW_COUNT: int = GRID_ROWS
+        self._COLUMN_COUNT: int = GRID_COLS
         self._grid: List[List[str]] = self.create_board()
         self.turn: str = "R"
 
@@ -26,19 +46,47 @@ class Connect4Board(Board):
         return self._grid
 
     def draw_board(self) -> None:
+        arcade.draw_rect_filled(
+            arcade.rect.XYWH(
+                FRAME_X + FRAME_WIDTH / 2,
+                FRAME_Y + FRAME_HEIGHT / 2,
+                FRAME_WIDTH,
+                FRAME_HEIGHT,
+            ),
+            FRAME_COLOR,
+        )
+
+        arcade.draw_rect_filled(
+            arcade.rect.XYWH(
+                INNER_X + INNER_WIDTH / 2,
+                INNER_Y + INNER_HEIGHT / 2,
+                INNER_WIDTH,
+                INNER_HEIGHT,
+            ),
+            INNER_COLOR,
+        )
+
         for row in range(self._ROW_COUNT):
             for column in range(self._COLUMN_COUNT):
+                cx = (
+                    INNER_X
+                    + column * (CELL_SIZE + CELL_SPACING)
+                    + CELL_SIZE / 2
+                )
+                cy = (
+                    INNER_Y
+                    + row * (CELL_SIZE + CELL_SPACING)
+                    + CELL_SIZE / 2
+                )
+
                 if self._grid[row][column] == "R":
-                    color = arcade.color.RED
+                    color = (218, 41, 28)
                 elif self._grid[row][column] == "B":
-                    color = arcade.color.BLUE
+                    color = (255, 215, 0)
                 else:
-                    color = arcade.color.DARK_GRAY
+                    color = EMPTY_SLOT_COLOR
 
-                x = (self._MARGIN + self._WIDTH) * column + self._MARGIN + self._WIDTH // 2
-                y = (self._MARGIN + self._HEIGHT) * row + self._MARGIN + self._HEIGHT // 2
-
-                arcade.draw_circle_filled(center_x=x, center_y=y, radius=17, color=color)
+                arcade.draw_circle_filled(cx, cy, TOKEN_RADIUS, color)
 
     def clear_board(self) -> None:
         for i in range(self._ROW_COUNT):
@@ -47,12 +95,12 @@ class Connect4Board(Board):
                     self._grid[i][j] = " "
 
     def put_token(self, x: int, y: int) -> Optional[Tuple[int, int]]:
-        column = int(x // (self._WIDTH + self._MARGIN))
-        row = int(y // (self._HEIGHT + self._MARGIN))
-        if row < self._ROW_COUNT and column < self._COLUMN_COUNT:
+        col = int((x - INNER_X) // (CELL_SIZE + CELL_SPACING))
+
+        if 0 <= col < self._COLUMN_COUNT:
             for current_row in range(self._ROW_COUNT):
-                if self._grid[current_row][column] == " ":
-                    self._grid[current_row][column] = self.turn
+                if self._grid[current_row][col] == " ":
+                    self._grid[current_row][col] = self.turn
                     self.turn = "B" if self.turn == "R" else "R"
-                    return current_row, column
+                    return current_row, col
         return None

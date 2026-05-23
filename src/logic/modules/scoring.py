@@ -10,7 +10,7 @@ class Connect4ScoreTracker(ScoreTracker):
     def show(self) -> Dict[str, str]:
         return {
             "R": f"Red: {self.scores['R']}",
-            "B": f"Blue: {self.scores['B']}"
+            "B": f"Yellow: {self.scores['B']}"
         }
 
     def increment_points(self, player: str) -> None:

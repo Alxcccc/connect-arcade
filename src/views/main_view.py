@@ -2,12 +2,20 @@ from typing import Dict
 
 import arcade
 import arcade.gui
+from arcade.gui.widgets.buttons import UIFlatButtonStyle
 
 from src.views.game_view import GameView
-from src.components.reset_score_component import ResetScoreComponent
 from src.logic.interfaces.scoring import ScoreTracker
 from src.logic.interfaces.board import Board
-from src.config import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
+from src.config import SCREEN_WIDTH, SCREEN_HEIGHT
+
+
+YELLOW_NORMAL = (255, 215, 0)
+YELLOW_HOVER = (220, 185, 0)
+YELLOW_PRESS = (180, 150, 0)
+RED_NORMAL = (218, 41, 28)
+RED_HOVER = (180, 30, 18)
+RED_PRESS = (140, 20, 10)
 
 
 class MainView(arcade.View):
@@ -16,26 +24,48 @@ class MainView(arcade.View):
         self.score_tracker: ScoreTracker = score_tracker
         self.manager: arcade.gui.UIManager = arcade.gui.UIManager()
 
-        self.score_color: tuple = arcade.color.WHITE
         self.score_font_size: int = 18
-        self.button_width: int = 150
-        self.button_height: int = 50
+        self.button_width: int = 180
 
-        self.red_score_text: arcade.Text = arcade.Text(
-            "Score Red", 50, 570, self.score_color, self.score_font_size
+        play_style = {
+            "normal": UIFlatButtonStyle(bg=YELLOW_NORMAL, font_color=(0, 0, 0)),
+            "hover": UIFlatButtonStyle(bg=YELLOW_HOVER, font_color=(0, 0, 0), border=(255, 255, 255), border_width=2),
+            "press": UIFlatButtonStyle(bg=YELLOW_PRESS, font_color=(0, 0, 0), border=(255, 255, 255), border_width=2),
+            "disabled": UIFlatButtonStyle(bg=(128, 128, 128)),
+        }
+
+        exit_style = {
+            "normal": UIFlatButtonStyle(bg=RED_NORMAL, font_color=(0, 0, 0)),
+            "hover": UIFlatButtonStyle(bg=RED_HOVER, font_color=(0, 0, 0), border=(255, 255, 255), border_width=2),
+            "press": UIFlatButtonStyle(bg=RED_PRESS, font_color=(0, 0, 0), border=(255, 255, 255), border_width=2),
+            "disabled": UIFlatButtonStyle(bg=(128, 128, 128)),
+        }
+
+        self.title_text = arcade.Text(
+            "CONNECT 4",
+            SCREEN_WIDTH / 2,
+            530,
+            arcade.color.WHITE,
+            font_size=52,
+            anchor_x="center",
+            font_name="Kenney Blocks",
         )
-        self.blue_score_text: arcade.Text = arcade.Text(
-            "Score Blue", 700, 570, self.score_color, self.score_font_size
+
+        self.subtitle_text = arcade.Text(
+            "Two-Player Game",
+            SCREEN_WIDTH / 2,
+            490,
+            (180, 200, 230),
+            font_size=16,
+            anchor_x="center",
+            font_name="Kenney Blocks",
         )
 
         self.play_button: arcade.gui.UIFlatButton = arcade.gui.UIFlatButton(
-            text="Play", width=self.button_width
-        )
-        self.reset_score_button: arcade.gui.UIFlatButton = arcade.gui.UIFlatButton(
-            text="Reset Score", width=self.button_width
+            text="Play", width=self.button_width, style=play_style
         )
         self.exit_game_button: arcade.gui.UIFlatButton = arcade.gui.UIFlatButton(
-            text="Exit", width=self.button_width
+            text="Exit", width=self.button_width, style=exit_style
         )
 
         self.grid: arcade.gui.UIGridLayout = arcade.gui.UIGridLayout(
@@ -43,8 +73,7 @@ class MainView(arcade.View):
         )
 
         self.grid.add(self.play_button, column=0, row=0)
-        self.grid.add(self.reset_score_button, column=0, row=1)
-        self.grid.add(self.exit_game_button, column=0, row=2)
+        self.grid.add(self.exit_game_button, column=0, row=1)
 
         self.anchor: arcade.gui.UIAnchorLayout = self.manager.add(
             arcade.gui.UIAnchorLayout()
@@ -57,9 +86,6 @@ class MainView(arcade.View):
         )
 
         self.game_view: GameView = GameView(board, score_tracker)
-        self.reset_score_component: ResetScoreComponent = ResetScoreComponent(
-            self.score_tracker
-        )
 
         self._setup_events()
 
@@ -68,16 +94,12 @@ class MainView(arcade.View):
         def on_click_play(_event):
             self.window.show_view(self.game_view)
 
-        @self.reset_score_button.event("on_click")
-        def on_click_reset(_event):
-            self.manager.add(self.reset_score_component)
-
         @self.exit_game_button.event("on_click")
         def on_click_exit(_event):
             arcade.exit()
 
     def on_show_view(self) -> None:
-        arcade.set_background_color(arcade.color.DARK_GRAY)
+        arcade.set_background_color((0, 30, 70))
         self.manager.enable()
 
     def on_hide_view(self) -> None:
@@ -85,11 +107,11 @@ class MainView(arcade.View):
 
     def on_draw(self) -> None:
         self.clear()
-        score_texts: Dict[str, str] = self.score_tracker.show()
 
-        self.red_score_text.text = score_texts["R"]
-        self.blue_score_text.text = score_texts["B"]
+        self.title_text.draw()
+        self.subtitle_text.draw()
 
-        self.red_score_text.draw()
-        self.blue_score_text.draw()
+        arcade.draw_circle_filled(SCREEN_WIDTH / 2 - 130, 520, 15, (218, 41, 28))
+        arcade.draw_circle_filled(SCREEN_WIDTH / 2 + 130, 520, 15, (255, 215, 0))
+
         self.manager.draw()
